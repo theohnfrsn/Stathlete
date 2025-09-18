@@ -212,5 +212,126 @@ class StathleteApp(App):
         sm.add_widget(HomeScreen(name="home"))
         return sm
 
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.spinner import Spinner
+from kivy.uix.button import Button
+from kivy.core.window import Window
+from kivy.graphics import Color, RoundedRectangle
+
+# Simulate mobile phone screen
+Window.size = (390, 844)
+Window.clearcolor = (1, 1, 1, 1)  # White background
+
+class BoxLabel(BoxLayout):
+    """A label inside a colored box."""
+    def __init__(self, text, box_color=(13/255, 48/255, 185/255, 1), **kwargs):
+        super().__init__(size_hint=(1, None), height=40, **kwargs)
+        self.orientation = "vertical"
+        self.padding = 5
+
+        # Draw the colored background
+        with self.canvas.before:
+            Color(*box_color)
+            self.rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[8])
+        self.bind(pos=self.update_rect, size=self.update_rect)
+
+        # Label text (white)
+        self.label = Label(text=text, color=(1, 1, 1, 1))
+        self.add_widget(self.label)
+
+    def update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+
+class AthleteForm(BoxLayout):
+    def __init__(self, **kwargs):
+        super().__init__(orientation="vertical", spacing=15, padding=20, **kwargs)
+
+        # Header
+        header = Label(text="Stathlete", font_size='32sp', bold=True, size_hint=(1, 0.1), color=(0,0,0,1))
+        self.add_widget(header)
+
+        input_bg = (0.95, 0.95, 0.95, 1)  # Light grey for input boxes
+        label_box_color = (13/255, 48/255, 185/255, 1)  # Blue #0d30b9
+
+        # Gender
+        self.add_widget(BoxLabel(text="Gender", box_color=label_box_color))
+        self.gender = Spinner(
+            text="Select Gender",
+            values=["Male", "Female"],
+            size_hint=(1, None), height=50,
+            background_color=label_box_color,
+            color=(1,1,1,1)  # White text
+        )
+        self.add_widget(self.gender)
+
+        # Height
+        self.add_widget(BoxLabel(text="Height", box_color=label_box_color))
+        self.feet = TextInput(hint_text="Feet", input_filter="int", multiline=False,
+                              background_color=input_bg, foreground_color=(0,0,0,1))
+        self.inches = TextInput(hint_text="Inches", input_filter="int", multiline=False,
+                                background_color=input_bg, foreground_color=(0,0,0,1))
+        self.add_widget(self.feet)
+        self.add_widget(self.inches)
+
+        # Weight
+        self.add_widget(BoxLabel(text="Weight", box_color=label_box_color))
+        self.weight = TextInput(hint_text="Weight (lbs)", input_filter="int", multiline=False,
+                                background_color=input_bg, foreground_color=(0,0,0,1))
+        self.add_widget(self.weight)
+
+        # Age
+        self.add_widget(BoxLabel(text="Age", box_color=label_box_color))
+        self.age = TextInput(hint_text="Age", input_filter="int", multiline=False,
+                             background_color=input_bg, foreground_color=(0,0,0,1))
+        self.add_widget(self.age)
+
+        # Sport
+        self.add_widget(BoxLabel(text="Sport", box_color=label_box_color))
+        self.sport = Spinner(
+            text="Select Sport",
+            values=["Soccer", "Basketball", "Football", "Baseball", "Tennis", "Other"],
+            size_hint=(1, None), height=50,
+            background_color=label_box_color,
+            color=(1,1,1,1)  # White text
+        )
+        self.add_widget(self.sport)
+
+        # Education
+        self.add_widget(BoxLabel(text="Education", box_color=label_box_color))
+        self.education = Spinner(
+            text="Select Education/Level",
+            values=["High School JV", "HS Varsity", "D3", "D2", "D1", "NAIA", "Other"],
+            size_hint=(1, None), height=50,
+            background_color=label_box_color,
+            color=(1,1,1,1)  # White text
+        )
+        self.add_widget(self.education)
+
+        # Submit button
+        self.submit = Button(text="Submit", size_hint=(1, None), height=50,
+                             background_color=label_box_color, color=(1,1,1,1))
+        self.submit.bind(on_press=self.show_summary)
+        self.add_widget(self.submit)
+
+    def show_summary(self, instance):
+        summary = f"""
+--- Athlete Profile ---
+Gender: {self.gender.text}
+Height: {self.feet.text} ft {self.inches.text} in
+Weight: {self.weight.text} lbs
+Age: {self.age.text}
+Sport: {self.sport.text}
+Education: {self.education.text}
+"""
+        print(summary)
+
+class AthleteApp(App):
+    def build(self):
+        return AthleteForm()
+
 if __name__ == "__main__":
-    StathleteApp().run()
+    AthleteApp().run()
