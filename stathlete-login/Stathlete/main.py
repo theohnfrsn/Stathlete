@@ -212,5 +212,102 @@ class StathleteApp(App):
         sm.add_widget(HomeScreen(name="home"))
         return sm
 
+
+
+
+
+
+
+
+
+class HomeScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.set_background()
+
+        root = BoxLayout(orientation='vertical', padding=dp(20), spacing=dp(16))
+
+        # Header
+        header = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(80), spacing=dp(6))
+        header.add_widget(Label(text="STATHLETE", font_size='28sp', bold=True, color=(0, 0, 0, 1)))
+        header.add_widget(Label(text="Your daily performance hub", font_size='14sp', color=(0.3, 0.3, 0.3, 1)))
+        root.add_widget(header)
+
+        """
+        # Stats Row
+        stats_row = BoxLayout(orientation='horizontal', size_hint=(1, None), height=dp(90), spacing=dp(10))
+        for title, value in [("Workouts", "3"), ("Streak", "5 days"), ("Hours", "1.2h")]:
+            card = BoxLayout(orientation='vertical', padding=dp(10), spacing=dp(4))
+            with card.canvas.before:
+                Color(0.96, 0.97, 1, 1)
+                Rectangle(pos=card.pos, size=card.size)
+            card.bind(pos=lambda w, *_: setattr(w.canvas.before.children[0], 'pos', w.pos),
+                      size=lambda w, *_: setattr(w.canvas.before.children[0], 'size', w.size))
+            card.add_widget(Label(text=value, font_size='20sp', color=(0, 0, 0, 1)))
+            card.add_widget(Label(text=title, font_size='12sp', color=(0.3, 0.3, 0.3, 1)))
+            stats_row.add_widget(card)
+        root.add_widget(stats_row)
+"""
+
+
+        # Quick Actions
+        qa = BoxLayout(orientation='vertical', spacing=dp(10))
+        qa.add_widget(Label(text="Quick Actions", font_size='16sp', color=(0, 0, 0, 1), size_hint=(1, None), height=dp(24)))
+
+        actions_row_1 = BoxLayout(orientation='horizontal', spacing=dp(10), size_hint=(1, None), height=dp(44))
+        actions_row_1.add_widget(styled_button("Start Workout", lambda *_: print("Start Workout")))
+        actions_row_1.add_widget(styled_button("Log Stats", lambda *_: print("Log Stats")))
+        qa.add_widget(actions_row_1)
+
+        actions_row_2 = BoxLayout(orientation='horizontal', spacing=dp(10), size_hint=(1, None), height=dp(44))
+        actions_row_2.add_widget(styled_button("View Trends", lambda *_: print("View Trends")))
+        actions_row_2.add_widget(styled_button("Goals", lambda *_: print("Goals")))
+        qa.add_widget(actions_row_2)
+        root.add_widget(qa)
+
+
+        # Recent Activity
+        recent = BoxLayout(orientation='vertical', spacing=dp(6))
+        recent.add_widget(Label(text="Recent Activity", font_size='16sp', color=(0, 0, 0, 1),
+                                size_hint=(1, None), height=dp(24)))
+        for line in ["• Upper body workout – 45 min",
+                     "• Sprint drills – 20 min",
+                     "• Logged recovery & hydration"]:
+            recent.add_widget(Label(text=line, font_size='13sp', color=(0.2, 0.2, 0.2, 1),
+                                    size_hint=(1, None), height=dp(22)))
+        root.add_widget(recent)
+
+        # Spacer + Logout
+        root.add_widget(Label(size_hint=(1, 1)))  # flexible spacer
+        logout_box = AnchorLayout(anchor_x='center', anchor_y='bottom')
+        logout_box.add_widget(styled_button("Logout", self.logout))
+        root.add_widget(logout_box)
+
+        wrapper = AnchorLayout()
+        wrapper.add_widget(root)
+        self.add_widget(wrapper)
+
+    def logout(self, instance):
+        self.manager.current = "login"
+
+    def set_background(self):
+        with self.canvas.before:
+            Color(1, 1, 1, 1)
+            self.bg_rect = Rectangle(size=Window.size)
+        self.bind(size=self.update_bg)
+
+    def update_bg(self, *args):
+        self.bg_rect.size = self.size
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     StathleteApp().run()
