@@ -216,70 +216,81 @@ class StathleteApp(App):
 
 
 
-
-
-
-
 class HomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.set_background()
 
-        root = BoxLayout(orientation='vertical', padding=dp(20), spacing=dp(16))
+        # Tighter padding + spacing so all content fits
+        root = BoxLayout(orientation='vertical',
+                         padding=[dp(16), dp(12), dp(16), dp(16)],
+                         spacing=dp(12))
 
-        # Header
-        header = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(80), spacing=dp(6))
-        header.add_widget(Label(text="STATHLETE", font_size='28sp', bold=True, color=(0, 0, 0, 1)))
-        header.add_widget(Label(text="Your daily performance hub", font_size='14sp', color=(0.3, 0.3, 0.3, 1)))
+        # --- Header (smaller height/fonts) ---
+        header = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(68), spacing=dp(2))
+        header.add_widget(Label(text="STATHLETE", font_size='26sp', bold=True, color=(0, 0, 0, 1)))
+        header.add_widget(Label(text="Your daily performance hub", font_size='13sp',
+                                color=(0.3, 0.3, 0.3, 1)))
         root.add_widget(header)
 
-        """
-        # Stats Row
-        stats_row = BoxLayout(orientation='horizontal', size_hint=(1, None), height=dp(90), spacing=dp(10))
-        for title, value in [("Workouts", "3"), ("Streak", "5 days"), ("Hours", "1.2h")]:
-            card = BoxLayout(orientation='vertical', padding=dp(10), spacing=dp(4))
-            with card.canvas.before:
-                Color(0.96, 0.97, 1, 1)
-                Rectangle(pos=card.pos, size=card.size)
-            card.bind(pos=lambda w, *_: setattr(w.canvas.before.children[0], 'pos', w.pos),
-                      size=lambda w, *_: setattr(w.canvas.before.children[0], 'size', w.size))
-            card.add_widget(Label(text=value, font_size='20sp', color=(0, 0, 0, 1)))
-            card.add_widget(Label(text=title, font_size='12sp', color=(0.3, 0.3, 0.3, 1)))
-            stats_row.add_widget(card)
-        root.add_widget(stats_row)
-"""
+        # --- Quick Actions (compact) ---
+        qa = BoxLayout(orientation='vertical',
+                       spacing=dp(8),
+                       padding=[0, dp(6), 0, dp(6)],
+                       size_hint=(1, None))
+        qa.bind(minimum_height=qa.setter('height'))
 
+        qa.add_widget(Label(text="Quick Actions",
+                            font_size='16sp',
+                            color=(0, 0, 0, 1),
+                            size_hint=(1, None),
+                            height=dp(24)))
 
-        # Quick Actions
-        qa = BoxLayout(orientation='vertical', spacing=dp(10))
-        qa.add_widget(Label(text="Quick Actions", font_size='16sp', color=(0, 0, 0, 1), size_hint=(1, None), height=dp(24)))
+        def centered_row_button(text, fn):
+            # Shorter row so stack is more compact
+            row = AnchorLayout(anchor_x='center', anchor_y='center',
+                               size_hint=(1, None), height=dp(48))
+            row.add_widget(styled_button(text, fn))   # button is dp(44) tall from styled_button
+            return row
 
-        actions_row_1 = BoxLayout(orientation='horizontal', spacing=dp(10), size_hint=(1, None), height=dp(44))
-        actions_row_1.add_widget(styled_button("Start Workout", lambda *_: print("Start Workout")))
-        actions_row_1.add_widget(styled_button("Log Stats", lambda *_: print("Log Stats")))
-        qa.add_widget(actions_row_1)
-
-        actions_row_2 = BoxLayout(orientation='horizontal', spacing=dp(10), size_hint=(1, None), height=dp(44))
-        actions_row_2.add_widget(styled_button("View Trends", lambda *_: print("View Trends")))
-        actions_row_2.add_widget(styled_button("Goals", lambda *_: print("Goals")))
-        qa.add_widget(actions_row_2)
+        qa.add_widget(centered_row_button("Start Workout", lambda *_: print("Start Workout")))
+        qa.add_widget(centered_row_button("Log Stats",      lambda *_: print("Log Stats")))
+        qa.add_widget(centered_row_button("View Trends",    lambda *_: print("View Trends")))
+        qa.add_widget(centered_row_button("Goals",          lambda *_: print("Goals")))
         root.add_widget(qa)
 
+        # Small spacer between sections
+        root.add_widget(Label(size_hint=(1, None), height=dp(8)))
 
-        # Recent Activity
-        recent = BoxLayout(orientation='vertical', spacing=dp(6))
-        recent.add_widget(Label(text="Recent Activity", font_size='16sp', color=(0, 0, 0, 1),
-                                size_hint=(1, None), height=dp(24)))
-        for line in ["• Upper body workout – 45 min",
-                     "• Sprint drills – 20 min",
-                     "• Logged recovery & hydration"]:
-            recent.add_widget(Label(text=line, font_size='13sp', color=(0.2, 0.2, 0.2, 1),
-                                    size_hint=(1, None), height=dp(22)))
+        # --- Recent Activity (compact) ---
+        recent = BoxLayout(orientation='vertical', spacing=dp(4),
+                           size_hint=(1, None), padding=[0, 0, 0, dp(4)])
+        recent.bind(minimum_height=recent.setter('height'))
+
+        recent.add_widget(Label(text="Recent Activity",
+                                font_size='16sp',
+                                color=(0, 0, 0, 1),
+                                size_hint=(1, None),
+                                height=dp(22)))
+
+        for line in [
+            "• Upper body workout – 45 min",
+            "• Sprint drills – 20 min",
+            "• Logged recovery & hydration",
+        ]:
+            recent.add_widget(Label(text=line,
+                                    font_size='12sp',
+                                    color=(0.2, 0.2, 0.2, 1),
+                                    size_hint=(1, None),
+                                    height=dp(20)))
         root.add_widget(recent)
 
-        # Spacer + Logout
-        root.add_widget(Label(size_hint=(1, 1)))  # flexible spacer
-        logout_box = AnchorLayout(anchor_x='center', anchor_y='bottom')
+        # Flexible spacer keeps logout at bottom
+        root.add_widget(Label(size_hint=(1, 1)))
+
+        # --- Logout ---
+        logout_box = AnchorLayout(anchor_x='center', anchor_y='bottom',
+                                  size_hint=(1, None), height=dp(56))
         logout_box.add_widget(styled_button("Logout", self.logout))
         root.add_widget(logout_box)
 
@@ -302,12 +313,13 @@ class HomeScreen(Screen):
 
 
 
-
-
-
-
-
-
+class StathleteApp(App):
+    def build(self):
+        sm = ScreenManager()
+        sm.add_widget(LoginScreen(name="login"))
+        sm.add_widget(SignupScreen(name="signup"))
+        sm.add_widget(HomeScreen(name="home"))
+        return sm
 
 if __name__ == "__main__":
     StathleteApp().run()
